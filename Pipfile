@@ -8,6 +8,7 @@ edge-tts = "*"
 asyncio = "*"
 tika = "*"
 moviepy = "*"
+streamlit = "*"
 
 [dev-packages]
 autopep8 = "*"

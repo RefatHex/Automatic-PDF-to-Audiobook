@@ -6,7 +6,7 @@ from edge_tts import VoicesManager
 from tika import parser
 from moviepy.editor import AudioFileClip, concatenate_audioclips
 
-audio_files = []  # Global variable to store audio file paths
+audio_files = [] 
 
 
 class TextToSpeech:
@@ -68,7 +68,7 @@ async def read_book(path: str, chunk_size=500) -> str:
     audio_clips = [AudioFileClip(audio_file) for audio_file in audio_files]
     final_audio = concatenate_audioclips(audio_clips)
 
-    final_audio_file = f"final-{uuid4()}.mp3"
+    final_audio_file = f"final-{output_dir}.mp3"
     final_audio.write_audiofile(final_audio_file)
 
     return final_audio_file
