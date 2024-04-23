@@ -21,7 +21,12 @@ def main():
         final_audio_file = process_pdf(uploaded_file, progress_bar)
 
         if final_audio_file:
-            st.markdown(f"## [Download Audio File]({final_audio_file})")
+            st.audio(final_audio_file, format='audio/mp3', start_time=0)
+            st.download_button(
+                label="Download Audio File",
+                data=final_audio_file,
+                file_name="audiobook.mp3"
+            )
 
 
 def process_pdf(uploaded_file, progress_bar):
