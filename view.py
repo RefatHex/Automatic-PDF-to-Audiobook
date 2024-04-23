@@ -2,7 +2,9 @@ import streamlit as st
 import os
 import asyncio
 from uuid import uuid4
+import tika
 from tika import parser
+tika.initVM()
 from moviepy.editor import AudioFileClip, concatenate_audioclips
 import edge_tts
 from edge_tts import VoicesManager
