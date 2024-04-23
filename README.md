@@ -1,6 +1,6 @@
 # Audiobook Generator
 
-This project is a simple Audiobook Generator built using Python and Streamlit. It allows users to upload a PDF file, which is then converted into an audio file, providing an easy way to listen to the contents of the PDF.
+This project is a simple Audiobook Generator From PDF built using Python and Streamlit. It allows users to upload a PDF file, which is then converted into an audio file, providing an easy way to listen to the contents of the PDF.
 
 ## Technologies Used
 
