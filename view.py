@@ -1,3 +1,7 @@
+import base64
+from edge_tts import VoicesManager
+import edge_tts
+from moviepy.editor import AudioFileClip, concatenate_audioclips
 import streamlit as st
 import os
 import asyncio
@@ -5,10 +9,6 @@ from uuid import uuid4
 import tika
 from tika import parser
 tika.initVM()
-from moviepy.editor import AudioFileClip, concatenate_audioclips
-import edge_tts
-from edge_tts import VoicesManager
-
 output_placeholder = st.empty()
 
 
@@ -20,26 +20,28 @@ def main():
     if uploaded_file is not None:
         progress_bar = st.progress(0)
 
-        final_audio_file = process_pdf(uploaded_file, progress_bar)
+        final_audio_path = process_pdf(uploaded_file, progress_bar)
 
-        if final_audio_file:
-            st.audio(final_audio_file, format='audio/mp3', start_time=0)
-            st.download_button(
-                label="Download Audio File",
-                data=final_audio_file,
-                file_name="audiobook.mp3"
-            )
+        if final_audio_path:
+            print("Final audio path:", final_audio_path)
+
+            st.audio(final_audio_path, format='audio/mp3', start_time=0)
+
+            st.markdown(get_binary_file_downloader_html(
+                final_audio_path), unsafe_allow_html=True)
 
 
 def process_pdf(uploaded_file, progress_bar):
-    pdf_path = "uploaded_pdf.pdf"
-
+    filename = uploaded_file.name
+    base_name, extension = os.path.splitext(filename)
+    output_dir = os.path.join("output", base_name)
+    os.makedirs(output_dir, exist_ok=True)
+    pdf_path = os.path.join(output_dir, filename)
     with open(pdf_path, "wb") as f:
         f.write(uploaded_file.getvalue())
+    final_audio_path = asyncio.run(read_book(pdf_path, progress_bar))
 
-    final_audio_file = asyncio.run(read_book(pdf_path, progress_bar))
-
-    return final_audio_file
+    return final_audio_path
 
 
 async def read_book(path: str, progress_bar, chunk_size=500) -> str:
@@ -59,10 +61,13 @@ async def read_book(path: str, progress_bar, chunk_size=500) -> str:
                    for audio_file in TextToSpeech.audio_files]
     final_audio = concatenate_audioclips(audio_clips)
 
-    final_audio_file = f"final-{output_dir}.mp3"
-    final_audio.write_audiofile(final_audio_file)
+    final_audio_path = f"{output_dir}.mp3"
+    final_audio.write_audiofile(final_audio_path)
 
-    return final_audio_file
+    for audio_file in TextToSpeech.audio_files:
+        os.remove(audio_file)
+
+    return final_audio_path
 
 
 class TextToSpeech:
@@ -81,6 +86,14 @@ class TextToSpeech:
             output_file = os.path.join(self.output_dir, f"{uuid4()}.mp3")
             await communicate.save(output_file)
             TextToSpeech.audio_files.append(output_file)
+
+
+def get_binary_file_downloader_html(bin_file, file_label='File'):
+    with open(bin_file, 'rb') as f:
+        data = f.read()
+    bin_str = base64.b64encode(data).decode()
+    href = f'<a href="data:application/octet-stream;base64,{bin_str}" download="{os.path.basename(bin_file)}">Click here to download {file_label}</a>'
+    return href
 
 
 if __name__ == "__main__":
