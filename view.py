@@ -16,11 +16,20 @@ def main():
     st.title("Audiobook Generator")
 
     uploaded_file = st.file_uploader("Upload PDF", type="pdf")
+    
+## Handle potential error from the text extraction process.
 
     if uploaded_file is not None:
-        progress_bar = st.progress(0)
+        try:   
+            progress_bar = st.progress(0)
 
-        final_audio_file = process_pdf(uploaded_file, progress_bar)
+            final_audio_file = process_pdf(uploaded_file, progress_bar)
+
+ from_romit
+            if final_audio_file:
+                st.markdown(f"## [Download Audio File]({final_audio_file})")       
+        except Exception as e:
+            st.error(f"Failed to process PDF file: {str(e)}")
 
         if final_audio_file:
             st.audio(final_audio_file, format='audio/mp3', start_time=0)
@@ -29,6 +38,7 @@ def main():
                 data=final_audio_file,
                 file_name="audiobook.mp3"
             )
+master
 
 
 def process_pdf(uploaded_file, progress_bar):
@@ -41,28 +51,33 @@ def process_pdf(uploaded_file, progress_bar):
 
     return final_audio_file
 
+##checks for empty content and handle exceptions from TTS and file operations
 
 async def read_book(path: str, progress_bar, chunk_size=500) -> str:
-    raw = parser.from_file(path)
-    text = raw["content"]
+    try:
+        raw = parser.from_file(path)
+        text = raw["content"]
 
-    chunks = [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
-    output_dir = path.replace(" ", "_").replace(".", "_")
-    os.makedirs(output_dir, exist_ok=True)
+        chunks = [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
+        output_dir = path.replace(" ", "_").replace(".", "_")
+        os.makedirs(output_dir, exist_ok=True)
 
-    for i, chunk in enumerate(chunks):
-        tts = TextToSpeech(chunk, ["en-US-GuyNeural"], output_dir=output_dir)
-        await tts.generate_audio()
-        progress_bar.progress((i + 1) / len(chunks))
+        for i, chunk in enumerate(chunks):
+            tts = TextToSpeech(chunk, ["en-US-GuyNeural"], output_dir=output_dir)
+            await tts.generate_audio()
+            progress_bar.progress((i + 1) / len(chunks))
 
-    audio_clips = [AudioFileClip(audio_file)
-                   for audio_file in TextToSpeech.audio_files]
-    final_audio = concatenate_audioclips(audio_clips)
+        audio_clips = [AudioFileClip(audio_file)
+                       for audio_file in TextToSpeech.audio_files]
+        final_audio = concatenate_audioclips(audio_clips)
 
-    final_audio_file = f"final-{output_dir}.mp3"
-    final_audio.write_audiofile(final_audio_file)
-
-    return final_audio_file
+        final_audio_file = f"final-{output_dir}.mp3"
+        final_audio.write_audiofile(final_audio_file)
+        return final_audio_file
+    
+    except Exception as e:
+        print(f"Error during reading and audio generation: {e}")
+        return None
 
 
 class TextToSpeech:
