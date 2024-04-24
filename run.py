@@ -36,20 +36,24 @@ class TextToSpeech:
     def set_output_dir(self, output_dir):
         self.output_dir = output_dir
 
+##This Error handled the file path exists and is a PDF before proceeding
+
 
 async def main():
  
     pdf_path = input("Enter the path of the PDF: ").strip()
 
     
-    if not os.path.exists(pdf_path):
-        print("Error: PDF file not found.")
+    if not os.path.exists(pdf_path) or not pdf_path.lower().endswith('.pdf'):
+        print("Error: PDF file not found or invalid file type.")
         return
 
-   
-    final_audio_file = await read_book(pdf_path)
+    try:
+        final_audio_file = await read_book(pdf_path)
+        print(f"Audio file generated: {final_audio_file}")
+    except Exception as e:
+        print(f"Failed to generate audio book: {e}")
 
-    print(f"Audio file generated: {final_audio_file}")
 
 
 async def read_book(path: str, chunk_size=500) -> str:
