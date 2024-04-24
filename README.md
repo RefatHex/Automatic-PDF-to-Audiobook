@@ -2,6 +2,14 @@
 
 This project is a simple Audiobook Generator built using Python and Streamlit. It allows users to upload a PDF file, which is then converted into an audio file, providing an easy way to listen to the contents of the PDF.
 
+## Screenshot 
+
+**main page**
+![Screenshot 1](https://github.com/RefatHex/Automatic-PDF-to-Audiobook/blob/master/Screenshot_1.png)  
+
+**After audio conversation download option screenshot**
+![Screenshot 3](https://github.com/RefatHex/Automatic-PDF-to-Audiobook/blob/master/Screenshot_3.png)  
+
 ## Technologies Used
 
 - **Python**: The primary programming language used for development.
